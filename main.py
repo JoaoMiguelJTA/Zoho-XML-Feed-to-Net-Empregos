@@ -13,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        logging.FileHandler("jobs_sync.log", encoding="iso-8859-1"),
+        logging.FileHandler("jobs_sync.log", encoding="utf-8"),
         logging.StreamHandler()
     ]
 )
@@ -43,9 +43,18 @@ tipo_mapping = mappings["tipo_mapping"]
 
 # --- fetch feed ---
 try:
-    response = requests.get(FEED_URL, timeout=30)
+    response = requests.get(FEED_URL, timeout=30, headers={"Accept": "application/xml"})
     response.raise_for_status()
-    root = ET.fromstring(response.content)
+    content = response.content
+    if not content.strip():
+        raise ValueError("Feed response is empty")
+    if not content.lstrip().startswith(b"<"):
+        snippet = content[:300].decode(response.encoding or "utf-8", errors="replace")
+        raise ValueError(
+            "Feed response does not start with XML. "
+            f"Content-Type={response.headers.get('Content-Type')} snippet={snippet!r}"
+        )
+    root = ET.fromstring(content)
     logging.info("Feed carregado com sucesso.")
 except Exception as e:
     logging.error(f"Erro ao carregar XML feed → {e}")
