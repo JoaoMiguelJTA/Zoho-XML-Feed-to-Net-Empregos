@@ -13,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        logging.FileHandler("jobs_sync.log", encoding="utf-8"),
+        logging.FileHandler("jobs_sync.log", encoding="iso-8859-1"),
         logging.StreamHandler()
     ]
 )
@@ -22,7 +22,7 @@ load_dotenv()
 
 API_URL = "http://partner.net-empregos.com/hrsmart_insert.asp"
 REMOVE_API_URL = "http://partner.net-empregos.com/hrsmart_remove.asp"
-FEED_URL = "hhttps://recruityard.zohorecruit.eu/jobs/Careers/rss"
+FEED_URL = "https://recruit.zoho.eu/recruit/downloadjobfeed?clientid=da279e513762f8ff929094f0761b8d7028c9ede87d9cc749c7fc7c9ec526d541db96e9a00da67f84101be0a8e52f82b6"
 API_KEY = os.getenv("API_ACCESS_KEY")
 FORM_HEADERS = {"Content-Type": "application/x-www-form-urlencoded; charset=iso-8859-1"}
 if not API_KEY:
@@ -43,18 +43,9 @@ tipo_mapping = mappings["tipo_mapping"]
 
 # --- fetch feed ---
 try:
-    response = requests.get(FEED_URL, timeout=30, headers={"Accept": "application/xml"})
+    response = requests.get(FEED_URL, timeout=30)
     response.raise_for_status()
-    content = response.content
-    if not content.strip():
-        raise ValueError("Feed response is empty")
-    if not content.lstrip().startswith(b"<"):
-        snippet = content[:300].decode(response.encoding or "utf-8", errors="replace")
-        raise ValueError(
-            "Feed response does not start with XML. "
-            f"Content-Type={response.headers.get('Content-Type')} snippet={snippet!r}"
-        )
-    root = ET.fromstring(content)
+    root = ET.fromstring(response.content)
     logging.info("Feed carregado com sucesso.")
 except Exception as e:
     logging.error(f"Erro ao carregar XML feed → {e}")
