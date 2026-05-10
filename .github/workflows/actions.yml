@@ -2,7 +2,7 @@ name: run main.py
 
 on:
   schedule:
-    - cron: '30 8 * * *'   # 08:30 local (UTC+1)
+    #- cron: '30 8 * * *'   # 08:30 local (UTC+1)
     - cron: '30 11 * * *'  # 12:30 local (UTC+1)
     - cron: '30 18 * * *'  # 19:30 local (UTC+1)
   workflow_dispatch:
