@@ -22,7 +22,7 @@ load_dotenv()
 
 API_URL = "http://partner.net-empregos.com/hrsmart_insert.asp"
 REMOVE_API_URL = "http://partner.net-empregos.com/hrsmart_remove.asp"
-FEED_URL = "https://recruit.zoho.eu/recruit/downloadjobfeed?clientid=da279e513762f8ff929094f0761b8d7028c9ede87d9cc749c7fc7c9ec526d541db96e9a00da67f84101be0a8e52f82b6"
+FEED_URL = "https://recruit.zoho.eu/recruit/downloadjobfeed?clientid=e5477b038ce4b5202ddbf36b873fbc6ff21e47b47056dd0829cb212655a55ff9b86cb70b634ff01e524066e539f85846"
 API_KEY = os.getenv("API_ACCESS_KEY")
 FORM_HEADERS = {"Content-Type": "application/x-www-form-urlencoded; charset=iso-8859-1"}
 if not API_KEY:
