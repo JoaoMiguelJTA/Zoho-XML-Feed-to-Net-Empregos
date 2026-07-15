@@ -1,4 +1,4 @@
-import requests
+﻿import requests
 import xml.etree.ElementTree as ET
 import os
 import json
@@ -58,7 +58,7 @@ API_URL = "http://partner.net-empregos.com/hrsmart_insert.asp"
 REMOVE_API_URL = "http://partner.net-empregos.com/hrsmart_remove.asp"
 FEED_URL = "https://recruit.zoho.eu/recruit/downloadjobfeed?clientid=e5477b038ce4b5202ddbf36b873fbc6ff21e47b47056dd0829cb212655a55ff9b86cb70b634ff01e524066e539f85846"
 API_KEY = os.getenv("API_ACCESS_KEY")
-FORM_HEADERS = {"Content-Type": "application/x-www-form-urlencoded; charset=iso-8859-1"}
+FORM_HEADERS = {"Content-Type": "application/x-www-form-urlencoded; charset=windows-1252"}
 if not API_KEY:
     message = "API_ACCESS_KEY is not set in the environment or .env file."
     logging.error(message)
@@ -138,7 +138,7 @@ except Exception as e:
     )
     raise
 
-# garantir que tudo fica em ISO-8859-1 antes do envio
+# garantir que tudo fica em Windows-1252 antes do envio (a API aceita ISO-8859-1 ou Windows-1252)
 def _looks_like_mojibake(candidate: str) -> bool:
     """Detect common mojibake sequences that show up when UTF-8 is misread as Latin-1."""
     if not candidate:
@@ -148,16 +148,12 @@ def _looks_like_mojibake(candidate: str) -> bool:
 
 
 def fix_mojibake(text: str) -> str:
-    """Attempt to repair UTF-8 strings that were decoded as ISO-8859-1."""
+    """Attempt to repair UTF-8 strings that were decoded as Windows-1252."""
     if not text:
         return ""
     try:
-        repaired = text.encode("iso-8859-1").decode("utf-8")
-    except UnicodeDecodeError:
-        return text
-    except UnicodeEncodeError:
-        # Text contains characters outside ISO-8859-1 (e.g. € U+20AC).
-        # Return as-is; the caller must handle or strip them before encoding.
+        repaired = text.encode("cp1252").decode("utf-8")
+    except (UnicodeDecodeError, UnicodeEncodeError):
         return text
     if _looks_like_mojibake(repaired):
         return text
@@ -165,19 +161,11 @@ def fix_mojibake(text: str) -> str:
         return repaired
     return repaired
 
-# normalização de texto
 def normalize_text(text: str) -> str:
-    # substitui apóstrofos e aspas tipográficas por simples
+    # Replace the few chars not in Windows-1252 with safe ASCII equivalents.
+    # Euro, smart quotes, dashes are natively in cp1252 and need no substitution.
     replacements = {
-        "’": "'",
-        "‘": "'",
-        '“': '"',
-        '”': '"',
-        '–': '-',
-        '—': '-',
-        '…': '...',
-        '€': 'EUR',
-        '≈': '~',
+        '≈': '~',   # almost-equal sign (not in cp1252)
     }
     for k, v in replacements.items():
         text = text.replace(k, v)
@@ -254,6 +242,7 @@ for job in jobs:
             country=country,
         )
 
+        titulo = normalize_text(title)[:100]   # API limit: alphanumeric 100
         texto = normalize_text(
             f"{description}"
             f"<a href='{url}'>Clique aqui para se candidatar!</a><br>"
@@ -261,7 +250,7 @@ for job in jobs:
         payload = {
             "ACCESS": API_KEY,
             "REF": ref,
-            "TITULO": fix_mojibake(title),
+            "TITULO": fix_mojibake(titulo),
             "TEXTO": fix_mojibake(texto),
             "ZONA": zona,
             "CATEGORIA": categoria,
@@ -298,7 +287,7 @@ for job in jobs:
             )
 
         # --- inserir novo ---
-        encoded_payload = urlencode(payload, encoding="iso-8859-1", errors="replace").encode("iso-8859-1")
+        encoded_payload = urlencode(payload, encoding="cp1252", errors="replace").encode("cp1252")
         r = requests.post(API_URL, data=encoded_payload, headers=FORM_HEADERS, timeout=10)
         if r.status_code == 200:
             stats["published"] += 1
