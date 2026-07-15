@@ -155,6 +155,10 @@ def fix_mojibake(text: str) -> str:
         repaired = text.encode("iso-8859-1").decode("utf-8")
     except UnicodeDecodeError:
         return text
+    except UnicodeEncodeError:
+        # Text contains characters outside ISO-8859-1 (e.g. € U+20AC).
+        # Return as-is; the caller must handle or strip them before encoding.
+        return text
     if _looks_like_mojibake(repaired):
         return text
     if _looks_like_mojibake(text):
@@ -165,10 +169,15 @@ def fix_mojibake(text: str) -> str:
 def normalize_text(text: str) -> str:
     # substitui apóstrofos e aspas tipográficas por simples
     replacements = {
-        "’": "'", "‘": "'",
-        "“": '"', "”": '"',
-        "–": "-", "—": "-",  # travessões
-        "…": "..."           # reticências
+        "’": "'",
+        "‘": "'",
+        '“': '"',
+        '”': '"',
+        '–': '-',
+        '—': '-',
+        '…': '...',
+        '€': 'EUR',
+        '≈': '~',
     }
     for k, v in replacements.items():
         text = text.replace(k, v)
@@ -289,7 +298,7 @@ for job in jobs:
             )
 
         # --- inserir novo ---
-        encoded_payload = urlencode(payload, encoding="iso-8859-1").encode("iso-8859-1")
+        encoded_payload = urlencode(payload, encoding="iso-8859-1", errors="replace").encode("iso-8859-1")
         r = requests.post(API_URL, data=encoded_payload, headers=FORM_HEADERS, timeout=10)
         if r.status_code == 200:
             stats["published"] += 1
