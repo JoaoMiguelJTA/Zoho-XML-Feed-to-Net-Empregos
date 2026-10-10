@@ -17,6 +17,8 @@ Report vulnerabilities privately through GitHub:
    - Steps to reproduce it.
    - The potential impact (for example, exposed credentials or unauthorised job postings).
 
+If you can't use GitHub's reporting form, email **[privacy@recruityard.com](mailto:privacy@recruityard.com)** with the same details.
+
 We will confirm receipt within 2 working days. If the report is verified, we aim to release a fix within 7–14 days, depending on severity.
 
 ## Secrets and Credentials
