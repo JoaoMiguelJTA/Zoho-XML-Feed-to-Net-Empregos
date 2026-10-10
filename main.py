@@ -54,8 +54,8 @@ def log_action(action: str, status: str, **details) -> None:
 
 load_dotenv()
 
-API_URL = "http://partner.net-empregos.com/hrsmart_insert.asp"
-REMOVE_API_URL = "http://partner.net-empregos.com/hrsmart_remove.asp"
+API_URL = "https://partner.net-empregos.com/hrsmart_insert.asp"
+REMOVE_API_URL = "https://partner.net-empregos.com/hrsmart_remove.asp"
 FEED_URL = "https://recruit.zoho.eu/recruit/downloadjobfeed?clientid=e5477b038ce4b5202ddbf36b873fbc6ff21e47b47056dd0829cb212655a55ff9b86cb70b634ff01e524066e539f85846"
 API_KEY = os.getenv("API_ACCESS_KEY")
 FORM_HEADERS = {"Content-Type": "application/x-www-form-urlencoded; charset=windows-1252"}
