@@ -7,6 +7,9 @@ on:
     - cron: '30 17 * * *'  # 19:30 local (UTC+1)
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -15,7 +18,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
       with:
-        fetch-depth: 0
+        persist-credentials: false
         clean: true
 
     - name: Setup Python
