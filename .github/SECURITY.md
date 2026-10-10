@@ -2,29 +2,31 @@
 
 ## Supported Versions
 
-We are currently supporting the following versions of this project:
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.x     | ✅                 |
-| 0.x     | ❌                 |
+This project has no versioned releases. Only the latest code on the `main` branch is supported and receives security fixes.
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please follow these steps:
+**Please do not open a public issue for security problems.**
 
-1. **Do not open a public issue.**  
-   Send a private email to: [joaomiguellime@gmail.com].
+Report vulnerabilities privately through GitHub:
 
-2. Include the following details in your report:
+1. Go to the **Security** tab of this repository.
+2. Click **Report a vulnerability**.
+3. Include:
    - A clear description of the vulnerability.
-   - Steps to reproduce the issue.
-   - Your environment (e.g., OS, software versions).
+   - Steps to reproduce it.
+   - The potential impact (for example, exposed credentials or unauthorised job postings).
 
-3. We will confirm receipt of your report within 2 working days.  
-   If verified, we aim to release a fix within 7-14 days, depending on severity.
+If you can't use GitHub's reporting form, email **[privacy@recruityard.com](mailto:privacy@recruityard.com)** with the same details.
+
+We will confirm receipt within 2 working days. If the report is verified, we aim to release a fix within 7–14 days, depending on severity.
+
+## Secrets and Credentials
+
+- The Net-Empregos API key is stored only as the `API_ACCESS_KEY` GitHub Actions secret, or in a local `.env` file that is never committed.
+- Never commit API keys, tokens or passwords to this repository. If a secret is committed by mistake, treat it as compromised: revoke it and issue a new one straight away, because removing it from the code does not remove it from the git history.
 
 ## Our Commitment
 
-- We will keep you updated throughout the resolution process.  
-- Credit will be given to the discoverer unless otherwise requested.
+- We will keep you updated throughout the resolution process.
+- Credit will be given to the reporter unless otherwise requested.

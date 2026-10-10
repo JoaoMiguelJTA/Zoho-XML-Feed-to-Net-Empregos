@@ -10,6 +10,28 @@ from pathlib import Path
 from urllib.parse import urlencode
 from dotenv import load_dotenv
 
+load_dotenv()
+API_KEY = os.getenv("API_ACCESS_KEY")
+
+
+def redact(text: str) -> str:
+    """Hide the API key in any text written to the logs (e.g. request URLs in error messages)."""
+    if API_KEY and text:
+        return text.replace(API_KEY, "***")
+    return text
+
+
+class RedactSecretsFilter(logging.Filter):
+    """Redact the API key from log messages and tracebacks before any handler writes them."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.msg = redact(record.getMessage())
+        record.args = None
+        if record.exc_info and not record.exc_text:
+            record.exc_text = redact(logging.Formatter().formatException(record.exc_info))
+        return True
+
+
 # --- configurar logging ---
 LOG_DIR = Path(os.getenv("LOG_DIR", "logs"))
 LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -33,6 +55,8 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+for handler in logging.getLogger().handlers:
+    handler.addFilter(RedactSecretsFilter())
 
 run_started_at = time.monotonic()
 
@@ -48,16 +72,13 @@ def log_action(action: str, status: str, **details) -> None:
     }
     try:
         with ACTION_LOG_PATH.open("a", encoding="utf-8") as log_file:
-            log_file.write(json.dumps(entry, ensure_ascii=False, default=str) + "\n")
+            log_file.write(redact(json.dumps(entry, ensure_ascii=False, default=str)) + "\n")
     except Exception as exc:
         logging.warning("Could not write action log entry: %s", exc)
 
-load_dotenv()
-
-API_URL = "http://partner.net-empregos.com/hrsmart_insert.asp"
-REMOVE_API_URL = "http://partner.net-empregos.com/hrsmart_remove.asp"
+API_URL ="https://partner.net-empregos.com/hrsmart_insert.asp"
+REMOVE_API_URL = "https://partner.net-empregos.com/hrsmart_remove.asp"
 FEED_URL = "https://recruit.zoho.eu/recruit/downloadjobfeed?clientid=e5477b038ce4b5202ddbf36b873fbc6ff21e47b47056dd0829cb212655a55ff9b86cb70b634ff01e524066e539f85846"
-API_KEY = os.getenv("API_ACCESS_KEY")
 FORM_HEADERS = {"Content-Type": "application/x-www-form-urlencoded; charset=windows-1252"}
 if not API_KEY:
     message = "API_ACCESS_KEY is not set in the environment or .env file."
