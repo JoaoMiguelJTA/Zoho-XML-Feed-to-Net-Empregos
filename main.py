@@ -108,7 +108,7 @@ log_action(
 
 # --- carregar mappings ---
 try:
-    with open("mapping.json", "r", encoding="iso-8859-1") as f:
+    with open("mapping.json", "r", encoding="utf-8") as f:
         mappings = json.load(f)
 except Exception as e:
     logging.error(f"Erro ao carregar mapping.json → {e}")
